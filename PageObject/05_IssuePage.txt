@@ -1,0 +1,73 @@
+
+#******************** Settings ************************
+
+*** Settings ***
+Documentation	Issue Test scenario. CRUD Operation: Create, Read, Update, Delete
+
+Pre Condition	User logged in, project exists, and user is on Issues page with project access
+Post Condition	Close all browsers; delete any issues created during tests
+Tags	Issue, TS-4-Issue, CRUD
+Data	Variables section below defines issue titles, descriptions, and metadata
+
+#******************* Common Variables ********************
+
+
+*** Variables ***
+
+# NOTE: Please Remove your login credential before uploading Assignments
+
+IssuesUrl= https://gitlab.com/dashboard/issues
+ProjectName= QA Project For Issues
+IssueTitle1= QA Issue 01
+IssueDescription1= First issue created by automation
+IssueTitleUpdated= QA Issue 01 Updated
+IssueTitle2= QA Issue 01 Updated
+IssueDescription2= Second issue using previous updated title
+Label= bug
+Milestone= Sprint 1
+
+
+
+#******************** Test Cases *************************
+
+*** Test Case ***
+
+# Positive Tests
+
+Create Issue
+    Navigate To Issues Page  IssuesUrl
+    Select Project  ProjectName
+    Click New Issue
+    Input Issue Title  IssueTitle1
+    Input Issue Description  IssueDescription1
+    Add Label  Label
+    Set Milestone  Milestone
+    Submit Issue
+    Verify Page Should Contain Issue was successfully created
+    Verify Issue Title Displays  IssueTitle1
+    
+Update Name Of Issue
+    Navigate To Issue  IssueTitle1
+    Click Edit Issue
+    Update Issue Title  IssueTitleUpdated
+    Save Issue Changes
+    Verify Page Should Contain Successfully updated
+    Verify Issue Title Displays  IssueTitleUpdated
+    
+Create Second Issue With Previous Updated Name
+    Navigate To Issues Page  IssuesUrl
+    Select Project  ProjectName
+    Click New Issue
+    Input Issue Title  IssueTitle2
+    Input Issue Description  IssueDescription2
+    Submit Issue
+    Verify Page Should Contain Issue was successfully created
+    Verify Issue Title Displays  IssueTitle2
+    
+Delete First Issue
+    Navigate To Issue  IssueTitleUpdated
+    Open Issue Options
+    Delete Issue
+    Confirm Issue Deletion
+    Verify Page Should Contain Issue was successfully deleted
+    Verify Issue Not Listed In Project Issues  IssueTitleUpdated

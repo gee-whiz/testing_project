@@ -1,0 +1,93 @@
+
+#******************** Settings ************************
+
+*** Settings ***
+
+Documentation	Project page CRUD scenarios covering creation (blank and from template), rename, delete, duplicate prevention, and success/error messaging validation.
+
+Pre Condition	User logged in and on Projects page; test account has permission to create/delete projects
+Post Condition	Close all browsers; delete any projects created during tests
+Tags	Project, TS-3-Project, CRUD
+Data	Variables section below defines project names, descriptions, and visibility
+
+#******************* Common Variables ********************
+
+*** Variables ***
+
+# NOTE: Please Remove your login credential before uploading Assignments
+ProjectsUrl= https://gitlab.com/dashboard/projects
+BlankProjectName= QA Blank Project 01
+TemplateProjectName= QA Template Project 01
+RenamedTemplateProjectName= QA Template Project 01 Renamed
+TemplateType= Blank project
+DuplicateProjectName= QA Blank Project 01
+Description= Test project created by automation
+Visibility= Private
+
+
+
+#******************** Test Cases *************************
+
+*** Test Case ***
+
+# Positive Tests
+
+Create Blank Project
+    Navigate To Projects Page  ProjectsUrl
+    Click New Project
+    Select Project Type  TemplateType
+    Input Project Name  BlankProjectName
+    Input Project Description  Description
+    Set Visibility  Visibility
+    Create Project
+    Verify Page Should Contain Project 'BlankProjectName' was successfully created
+    Verify Project Overview Shows Name  BlankProjectName
+    
+Create Template Project
+    Navigate To Projects Page  ProjectsUrl
+    Click New Project
+    Select Create From Template
+    Choose Template  TemplateType
+    Input Project Name  TemplateProjectName
+    Set Visibility  Visibility
+    Create Project
+    Verify Page Should Contain Project 'TemplateProjectName' was successfully created
+    Verify Project Files Are Present From Template
+    
+Update Name Of Template Project
+    Navigate To Project  TemplateProjectName
+    Open Project Settings General
+    Edit Project Name  RenamedTemplateProjectName
+    Save Project Settings
+    Verify Page Should Contain Successfully updated project settings
+    Verify Project Name Displays  RenamedTemplateProjectName
+    
+Delete Template Project
+    Navigate To Project  RenamedTemplateProjectName
+    Open Project Settings Advanced
+    Initiate Project Deletion
+    Confirm Deletion By Typing Project Name  RenamedTemplateProjectName
+    Confirm Delete Project
+    Verify Page Should Contain Project deleted successfully
+    Verify Project Not Listed In Projects Page  RenamedTemplateProjectName
+    
+Validate Success Message On Create
+    Navigate To Projects Page  ProjectsUrl
+    Click New Project
+    Select Project Type  TemplateType
+    Input Project Name  BlankProjectName
+    Create Project
+    Verify Page Should Contain Project 'BlankProjectName' was successfully created
+
+# Negative Tests
+
+Create A Blank Project With The Previous Same Name
+    Navigate To Projects Page  ProjectsUrl
+    Click New Project
+    Select Project Type  TemplateType
+    Input Project Name  DuplicateProjectName
+    Create Project
+    Verify Page Should Contain Name has already been taken
+    Verify Project Not Created With Duplicate Name
+
+

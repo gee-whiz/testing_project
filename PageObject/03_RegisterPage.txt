@@ -1,0 +1,90 @@
+
+#******************** Settings ************************
+
+*** Settings ***
+
+Documentation	User registration scenarios validating account creation with valid credentials and rejection handling for invalid data (duplicate usernames, empty passwords, bad emails, and missing recaptcha), including verification of confirmation messaging and login readiness.
+
+Pre Condition	Open browser and navigate to GitLab sign-up page
+Post Condition	Close all browsers; remove any test accounts created
+Tags	Register, TS-2-Register, SignUp
+Data	Variables section below defines signup inputs and error data sets
+
+#******************* Common Variables ********************
+
+*** Variables ***
+
+# NOTE: Please Remove your login credential before uploading Assignments
+# Here Test Data defined as a Variable for easy access
+
+LoginUrl= https://gitlab.com/users/sign_up
+NewUserName= qa_register_user01
+NewEmail= qa_register_user01@example.com
+NewPassword= P@ssword12345
+ConfirmPassword= P@ssword12345
+InvalidEmail= qa_register_user01example.com
+Empty=
+
+
+
+#******************** Test Cases *************************
+
+*** Test Case ***
+
+# Positive Tests
+
+Register User With Valid Username And Password
+    Navigate To Register Page  LoginUrl
+    Input Username  NewUserName
+    Input Email  NewEmail
+    Input Password  NewPassword
+    Confirm Password  ConfirmPassword
+    Complete Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain confirmation instructions for email verification
+    Verify Login Is Possible With New Credentials After Confirmation
+
+# Negative Tests
+	
+Register User With Same Above Username
+    Navigate To Register Page  LoginUrl
+    Input Username  NewUserName
+    Input Email  NewEmail
+    Input Password  NewPassword
+    Confirm Password  ConfirmPassword
+    Complete Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain Username has already been taken
+    Verify Registration Form Remains Visible
+    
+Register User With Empty Password
+    Navigate To Register Page  LoginUrl
+    Input Username  NewUserName
+    Input Email  NewEmail
+    Input Password  Empty
+    Confirm Password  Empty
+    Complete Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain This field is required
+    
+Register User With Invalid Email
+    Navigate To Register Page  LoginUrl
+    Input Username  NewUserName
+    Input Email  InvalidEmail
+    Input Password  NewPassword
+    Confirm Password  ConfirmPassword
+    Complete Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain Email is invalid
+    
+Register User Without Recaptcha
+    Navigate To Register Page  LoginUrl
+    Input Username  NewUserName
+    Input Email  NewEmail
+    Input Password  NewPassword
+    Confirm Password  ConfirmPassword
+    Skip Recaptcha
+    Submit Registration Form
+    Verify Page Should Contain Please verify that you are not a robot
+
+
